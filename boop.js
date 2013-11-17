@@ -23,9 +23,11 @@ Pos.prototype.equals = function(other) {
 
 // global game state
 var obstacles;
+var start;
 var robot;
 var goal;
 var showPath;
+var moveCount;
 
 var moveSearch = function(pos, update) {
     var prev;
@@ -74,10 +76,10 @@ var backTrace = function(loc, found_from) {
     return res;
 }
 
-var trySolve = function() { 
+var trySolve = function(loc) { 
     var found_from = {};
-    found_from[robot] = undefined;
-    var queue = [robot];
+    found_from[loc] = undefined;
+    var queue = [loc];
     while (queue.length > 0) {
         var loc = queue.shift();
         if (loc.equals(goal)) {
@@ -112,8 +114,9 @@ var resetPositions = function() {
         addObst(i, -1); addObst(i, GRID_SIZE);
     }
     do {
-        robot = new Pos(randInt(GRID_SIZE), randInt(GRID_SIZE));
-    } while (robot in obstacles);
+        start = new Pos(randInt(GRID_SIZE), randInt(GRID_SIZE));
+    } while (start in obstacles);
+    robot = start;
     do {
         goal = new Pos(randInt(GRID_SIZE), randInt(GRID_SIZE));
     } while (goal in obstacles || goal.equals(robot));
@@ -149,6 +152,7 @@ var redraw = function(solution) {
         }
     }
     drawCell(goal, "#E02020");
+    drawCell(start, "#80E0A0");
     drawCell(robot, "#00B030");
 }
 
@@ -167,8 +171,9 @@ var reset = function() {
     showPath = false;
     do {
         resetPositions();
-        solution = trySolve()
+        solution = trySolve(robot)
     } while (!solution || solution.length < 4);
+    moveCount = 0;
     redraw();
     _gaq.push(['_trackEvent', 'Boop', 'NewGame']);
 }
@@ -178,15 +183,19 @@ reset();
 var keyPress = function(e) {
     if (e.keyCode == 38) {
         robot = goUp(robot);
+        moveCount++;
     }
     if (e.keyCode == 40) {
         robot = goDown(robot);
+        moveCount++;
     }
     if (e.keyCode == 37) {
         robot = goLeft(robot);
+        moveCount++;
     }
     if (e.keyCode == 39) {
         robot = goRight(robot);
+        moveCount++;
     }
     if (e.keyCode == 82) {
         // 'r'
@@ -196,15 +205,18 @@ var keyPress = function(e) {
         // 's'
         showPath = !showPath;
     }
-    solution = trySolve();
+    solution = trySolve(robot);
     redraw(solution);
     if (robot.equals(goal)) {
-        alert("Win!");
+        var minMoves = trySolve(start).length - 1;
+        var msg = ("It took you " + moveCount + " moves. The best solution was "
+                   + minMoves + " moves");
+        alert(msg);
         reset();
     }
     if (!solution) {
         alert("Oh no! You're stuck.");
-        reset();
+        robot = start;
     }
 }
 
