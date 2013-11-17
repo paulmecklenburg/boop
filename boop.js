@@ -167,7 +167,8 @@ var reset = function() {
     showPath = false;
     do {
         resetPositions();
-    } while (!trySolve());
+        solution = trySolve()
+    } while (!solution || solution.length < 4);
     redraw();
     _gaq.push(['_trackEvent', 'Boop', 'NewGame']);
 }
