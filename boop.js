@@ -15,7 +15,7 @@ function Pos(x_, y_) {
     this.y = y_;
 }
 Pos.prototype.toString = function() {
-    return this.x + ',' + this.y;
+    return this.x + ':' + this.y;
 }
 Pos.prototype.equals = function(other) {
     return this.x == other.x && this.y == other.y;
@@ -25,6 +25,7 @@ Pos.prototype.equals = function(other) {
 var obstacles;
 var robot;
 var goal;
+var showPath;
 
 var moveSearch = function(pos, update) {
     var prev;
@@ -64,23 +65,29 @@ var possibleMoves = function(loc) {
     return [goRight(loc), goLeft(loc), goUp(loc), goDown(loc)];
 }
 
-var isSolveable = function() { 
-    var steps_to = {};
-    steps_to[robot] = 0;
+var backTrace = function(loc, found_from) {
+    var res = [];
+    do {
+        res.push(loc);
+        loc = found_from[loc];
+    } while (loc);
+    return res;
+}
+
+var trySolve = function() { 
+    var found_from = {};
+    found_from[robot] = undefined;
     var queue = [robot];
     while (queue.length > 0) {
         var loc = queue.shift();
-        var steps = steps_to[loc];
-        // console.log("loc: " + loc + " " + steps);
         if (loc.equals(goal)) {
-            return true;
+            return backTrace(loc, found_from);
         }
         moves = possibleMoves(loc);
         for (i in moves) {
             dst = moves[i];
-            // console.log("mv: " + dst);
-            if (!(dst in steps_to)) {
-                steps_to[dst] = steps + 1;
+            if (!(dst in found_from)) {
+                found_from[dst] = loc;
                 queue.push(dst);
             }
         }
@@ -95,7 +102,8 @@ var addObst = function(x, y) {
 
 var resetPositions = function() {
     obstacles = {};
-    var numObst = Math.floor(GRID_SIZE * GRID_SIZE * .15);
+    var density = (Math.random() * .15) + .05;
+    var numObst = Math.floor(GRID_SIZE * GRID_SIZE * density);
     for (var i = 0; i < numObst; i++) {
         addObst(randInt(GRID_SIZE), randInt(GRID_SIZE));
     }
@@ -108,7 +116,7 @@ var resetPositions = function() {
     } while (robot in obstacles);
     do {
         goal = new Pos(randInt(GRID_SIZE), randInt(GRID_SIZE));
-    } while (goal in obstacles);
+    } while (goal in obstacles || goal.equals(robot));
 }
 
 var drawCell = function(pos, style) {
@@ -117,21 +125,28 @@ var drawCell = function(pos, style) {
                  CELL_SIZE, CELL_SIZE);
 }
 
-var redraw = function() {
+var redraw = function(solution) {
     ctx.fillStyle="#E0E0E0";
     ctx.fillRect(0, 0, GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE);
     for (ob_key in obstacles) {
         obst = obstacles[ob_key];
         drawCell(obst, "#303030");
     }
+    if (showPath) {
+        for (i in solution) {
+            var loc = solution[i];
+            drawCell(loc, "#0080FF");
+        }
+    }
     drawCell(goal, "#E02020");
     drawCell(robot, "#00B030");
 }
 
 var reset = function() {
+    showPath = false;
     do {
         resetPositions();
-    } while (!isSolveable());
+    } while (!trySolve());
     redraw();
 }
 
@@ -154,12 +169,17 @@ addEventListener("keydown", function (e) {
         // 'r'
         reset();
     }
-    redraw();
+    if (e.keyCode == 83) {
+        // 's'
+        showPath = !showPath;
+    }
+    solution = trySolve();
+    redraw(solution);
     if (robot.equals(goal)) {
         alert("Win!");
         reset();
     }
-    if (!isSolveable()) {
+    if (!solution) {
         alert("Oh no! You're stuck.");
         reset();
     }
