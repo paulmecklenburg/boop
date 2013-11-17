@@ -26,50 +26,6 @@ var obstacles;
 var robot;
 var goal;
 
-var addObst = function(x, y) {
-    var pos = new Pos(x, y);
-    obstacles[pos] = pos;
-}
-
-var reset = function() {
-    obstacles = {};
-    var numObst = Math.floor(GRID_SIZE * GRID_SIZE * .15);
-    for (var i = 0; i < numObst; i++) {
-        addObst(randInt(GRID_SIZE), randInt(GRID_SIZE));
-    }
-    for (var i = 0; i < GRID_SIZE; i++) {
-        addObst(-1, i); addObst(GRID_SIZE, i);
-        addObst(i, -1); addObst(i, GRID_SIZE);
-    }
-    do {
-        robot = new Pos(randInt(GRID_SIZE), randInt(GRID_SIZE));
-    } while (robot in obstacles);
-    do {
-        goal = new Pos(randInt(GRID_SIZE), randInt(GRID_SIZE));
-    } while (goal in obstacles);
-}
-
-var drawCell = function(pos, style) {
-    ctx.fillStyle=style;
-    ctx.fillRect(pos.x * CELL_SIZE, pos.y * CELL_SIZE,
-                 CELL_SIZE, CELL_SIZE);
-}
-
-var redraw = function() {
-    ctx.fillStyle="#E0E0E0";
-    ctx.fillRect(0, 0, GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE);
-    for (ob_key in obstacles) {
-        obst = obstacles[ob_key];
-        // console.log('ob: ' + obst.x + '....' + obst.y)
-        drawCell(obst, "#303030");
-    }
-    drawCell(goal, "#E02020");
-    drawCell(robot, "#00B030");
-}
-
-reset();
-redraw();
-
 var moveSearch = function(pos, update) {
     var prev;
     var next = pos;
@@ -104,6 +60,83 @@ var goDown = function(pos) {
     });
 }
 
+var possibleMoves = function(loc) {
+    return [goRight(loc), goLeft(loc), goUp(loc), goDown(loc)];
+}
+
+var isSolveable = function() { 
+    var steps_to = {};
+    steps_to[robot] = 0;
+    var queue = [robot];
+    while (queue.length > 0) {
+        var loc = queue.shift();
+        var steps = steps_to[loc];
+        // console.log("loc: " + loc + " " + steps);
+        if (loc.equals(goal)) {
+            return true;
+        }
+        moves = possibleMoves(loc);
+        for (i in moves) {
+            dst = moves[i];
+            // console.log("mv: " + dst);
+            if (!(dst in steps_to)) {
+                steps_to[dst] = steps + 1;
+                queue.push(dst);
+            }
+        }
+    }
+    return false;
+}
+
+var addObst = function(x, y) {
+    var pos = new Pos(x, y);
+    obstacles[pos] = pos;
+}
+
+var resetPositions = function() {
+    obstacles = {};
+    var numObst = Math.floor(GRID_SIZE * GRID_SIZE * .15);
+    for (var i = 0; i < numObst; i++) {
+        addObst(randInt(GRID_SIZE), randInt(GRID_SIZE));
+    }
+    for (var i = 0; i < GRID_SIZE; i++) {
+        addObst(-1, i); addObst(GRID_SIZE, i);
+        addObst(i, -1); addObst(i, GRID_SIZE);
+    }
+    do {
+        robot = new Pos(randInt(GRID_SIZE), randInt(GRID_SIZE));
+    } while (robot in obstacles);
+    do {
+        goal = new Pos(randInt(GRID_SIZE), randInt(GRID_SIZE));
+    } while (goal in obstacles);
+}
+
+var drawCell = function(pos, style) {
+    ctx.fillStyle=style;
+    ctx.fillRect(pos.x * CELL_SIZE, pos.y * CELL_SIZE,
+                 CELL_SIZE, CELL_SIZE);
+}
+
+var redraw = function() {
+    ctx.fillStyle="#E0E0E0";
+    ctx.fillRect(0, 0, GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE);
+    for (ob_key in obstacles) {
+        obst = obstacles[ob_key];
+        drawCell(obst, "#303030");
+    }
+    drawCell(goal, "#E02020");
+    drawCell(robot, "#00B030");
+}
+
+var reset = function() {
+    do {
+        resetPositions();
+    } while (!isSolveable());
+    redraw();
+}
+
+reset();
+
 addEventListener("keydown", function (e) {
     if (e.keyCode == 38) {
         robot = goUp(robot);
@@ -125,6 +158,9 @@ addEventListener("keydown", function (e) {
     if (robot.equals(goal)) {
         alert("Win!");
         reset();
-        redraw();
+    }
+    if (!isSolveable()) {
+        alert("Oh no! You're stuck.");
+        reset();
     }
 }, false);
