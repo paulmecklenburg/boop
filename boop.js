@@ -126,8 +126,18 @@ var drawCell = function(pos, style) {
 }
 
 var redraw = function(solution) {
-    ctx.fillStyle="#E0E0E0";
+    ctx.fillStyle = "#E0E0E0";
     ctx.fillRect(0, 0, GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE);
+    ctx.strokeStyle = "#808080";
+    for (var i = 1; i < GRID_SIZE; i++) {
+        var coord = i * CELL_SIZE;
+        ctx.moveTo(coord, 0);
+        ctx.lineTo(coord, GRID_SIZE * CELL_SIZE);
+        ctx.stroke();
+        ctx.moveTo(0, coord);
+        ctx.lineTo(GRID_SIZE * CELL_SIZE, coord);
+        ctx.stroke();
+    }
     for (ob_key in obstacles) {
         obst = obstacles[ob_key];
         drawCell(obst, "#303030");
