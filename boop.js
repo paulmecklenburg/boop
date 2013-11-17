@@ -129,23 +129,17 @@ var drawCell = function(pos, style) {
 }
 
 var redraw = function(solution) {
-    ctx.fillStyle = "#E0E0E0";
-    ctx.fillRect(0, 0, GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE);
-    ctx.strokeStyle = "#808080";
-    for (var i = 1; i < GRID_SIZE; i++) {
-        var coord = i * CELL_SIZE;
-        ctx.moveTo(coord, 0);
-        ctx.lineTo(coord, GRID_SIZE * CELL_SIZE);
-        ctx.stroke();
-        ctx.moveTo(0, coord);
-        ctx.lineTo(GRID_SIZE * CELL_SIZE, coord);
-        ctx.stroke();
+    if (boardReady) {
+        ctx.drawImage(boardImage, 0, 0);
     }
-    for (ob_key in obstacles) {
-        obst = obstacles[ob_key];
-        drawCell(obst, "#303030");
+    if (obstacleReady) {
+        for (ob_key in obstacles) {
+            obst = obstacles[ob_key];
+            ctx.drawImage(obstacleImage,
+                          obst.x * CELL_SIZE, obst.y * CELL_SIZE);
+        }
     }
-    if (showPath) {
+    if (solution) {
         for (i in solution) {
             var loc = solution[i];
             drawCell(loc, "#0080FF");
@@ -206,17 +200,25 @@ var keyPress = function(e) {
         showPath = !showPath;
     }
     solution = trySolve(robot);
-    redraw(solution);
     if (robot.equals(goal)) {
-        var minMoves = trySolve(start).length - 1;
+        var optimal = trySolve(start)
+        var minMoves = optimal.length - 1;
         var msg = ("It took you " + moveCount + " moves. The best solution was "
                    + minMoves + " moves");
+        redraw(optimal);
         alert(msg);
         reset();
+    } else {
+        if (showPath) {
+            redraw(solution);
+        } else {
+            redraw();
+        }
     }
     if (!solution) {
         alert("Oh no! You're stuck.");
         robot = start;
+        redraw();
     }
 }
 
@@ -264,3 +266,20 @@ addEventListener("click", function(e) {
 
     keyPress(e);
 }, false);
+
+// Artwork.
+var boardReady = false;
+var boardImage = new Image();
+boardImage.onload = function () {
+    boardReady = true;
+    redraw();
+};
+boardImage.src = "board.png";
+
+var obstacleReady = false;
+var obstacleImage = new Image();
+obstacleImage.onload = function () {
+    obstacleReady = true;
+    redraw();
+};
+obstacleImage.src = "obstacle.png";
