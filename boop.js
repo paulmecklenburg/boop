@@ -162,7 +162,7 @@ var reset = function() {
 
 reset();
 
-addEventListener("keydown", function (e) {
+var keyPress = function(e) {
     if (e.keyCode == 38) {
         robot = goUp(robot);
     }
@@ -193,4 +193,49 @@ addEventListener("keydown", function (e) {
         alert("Oh no! You're stuck.");
         reset();
     }
+}
+
+addEventListener("keydown", keyPress, false);
+
+addEventListener("click", function(e) {
+    var x;
+    var y;
+    if (e.pageX || e.pageY) {
+        x = e.pageX;
+        y = e.pageY;
+    }
+    else {
+      x = e.clientX + document.body.scrollLeft +
+            document.documentElement.scrollLeft;
+      y = e.clientY + document.body.scrollTop +
+            document.documentElement.scrollTop;
+    }
+
+    x -= canvas.offsetLeft;
+    y -= canvas.offsetTop;
+
+    var e = {};
+
+    if (x > canvas.width || y > canvas.height) {
+        e.keyCode = 83;
+    } else {
+        var upperRight = x > y;
+        var upperLeft = (canvas.width - x) > y;
+
+        if (upperRight) {
+            if (upperLeft) {
+                e.keyCode = 38;
+            } else {
+                e.keyCode = 39;
+            }
+        } else {
+            if (upperLeft) {
+                e.keyCode = 37;
+            } else {
+                e.keyCode = 40;
+            }
+        }
+    }
+
+    keyPress(e);
 }, false);
