@@ -6,14 +6,6 @@
 
 // Util
 
-Object.size = function(obj) {
-    var size = 0, key;
-    for (key in obj) {
-        if (obj.hasOwnProperty(key)) size++;
-    }
-    return size;
-};
-
 var randInt = function(max) {
     return Math.floor(Math.random() * max);
 }
