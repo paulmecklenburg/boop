@@ -150,7 +150,7 @@ var redraw = function(solution) {
             drawCell(loc, "#0080FF");
         }
     }
-    drawCell(goal, "#E02020");
+    ctx.drawImage(assets.goal, goal.x * CELL_SIZE, goal.y * CELL_SIZE);
     drawCell(start, "#80E0A0");
     drawCell(robot, "#00B030");
 }
@@ -181,7 +181,8 @@ var reset = function() {
 var assets = {};
 var assetList = [
     ["board", "board.png"],
-    ["obstacle", "obstacle.png"]
+    ["obstacle", "obstacle.png"],
+    ["goal", "goal.png"]
 ];
 var assetCount = 0;
 var assetsReady = function() {
@@ -208,6 +209,7 @@ var updateBoard = function() {
         var msg = ("It took you " + moveCount + " moves. The best solution was "
                    + minMoves + " moves");
         redraw(optimal);
+        _gaq.push(['_trackEvent', 'Boop', 'Win']);
         alert(msg);
         reset();
     } else {
@@ -227,7 +229,7 @@ var updateBoard = function() {
 var toggleHelp = document.getElementById("toggleHelp");
 var updateHelpValue = function(val) {
     showPath = val;
-    toggleHelp.value = showPath ? "[s] help on" : "[s] help off";
+    toggleHelp.value = showPath ? "[s] help (on)" : "[s] help (off)";
 }
 toggleHelp.onclick = function() {
     updateHelpValue(!showPath);
