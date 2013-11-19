@@ -75,8 +75,8 @@
          result="result1"
          lighting-color="rgb(254,230,93)"
          surfaceScale="3"
-         specularConstant="0.4"
-         specularExponent="21.53617021276596">
+         specularConstant="0"
+         specularExponent="116.82618025751073">
         <fePointLight
            id="fePointLight5174"
            x="-5000"
@@ -112,10 +112,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="433.1633"
-     inkscape:cy="206.07006"
+     inkscape:cx="292.09187"
+     inkscape:cy="181.78435"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer3"
      showgrid="false"
      inkscape:window-width="1317"
      inkscape:window-height="744"
@@ -140,7 +140,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -149,9 +149,10 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-652.3622)"
-     style="display:inline">
+     style="display:inline"
+     sodipodi:insensitive="true">
     <rect
-       style="fill:#5d5d7e;fill-opacity:1;stroke:none;filter:url(#filter5156)"
+       style="fill:#9a96a3;fill-opacity:1;stroke:none;filter:url(#filter5156)"
        id="rect2987"
        width="400"
        height="400"
@@ -161,9 +162,22 @@
   </g>
   <g
      inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="mute">
+    <rect
+       style="fill:#84847c;fill-opacity:1;stroke:none;opacity:0.82520325000000005"
+       id="rect3809"
+       width="400"
+       height="400"
+       x="0"
+       y="1.8540725e-14" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="grid"
-     sodipodi:insensitive="true">
+     sodipodi:insensitive="true"
+     style="display:inline">
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:0.28251121"
        d="m 20,0 0,400"
