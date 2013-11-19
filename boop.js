@@ -1,3 +1,9 @@
+// TODO
+// - adventure / challenge mode
+// - art loader
+// - replace background with generated img
+// - size grows over time
+
 var GRID_SIZE = 20;
 var CELL_SIZE = 20;
 
