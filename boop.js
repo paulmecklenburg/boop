@@ -1,8 +1,24 @@
 // TODO
 // - adventure / challenge mode
-// - art loader
 // - replace background with generated img
 // - size grows over time
+// - handle iOS touchstart / touchend events
+
+// Util
+
+Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
+
+var randInt = function(max) {
+    return Math.floor(Math.random() * max);
+}
+
+// Boop
 
 var GRID_SIZE = 20;
 var CELL_SIZE = 20;
@@ -11,10 +27,6 @@ var canvas = document.createElement("canvas");
 var ctx = canvas.getContext("2d");
 canvas.height = canvas.width = GRID_SIZE * CELL_SIZE;
 document.body.appendChild(canvas);
-
-var randInt = function(max) {
-    return Math.floor(Math.random() * max);
-}
 
 function Pos(x_, y_) {
     this.x = x_;
@@ -135,15 +147,11 @@ var drawCell = function(pos, style) {
 }
 
 var redraw = function(solution) {
-    if (boardReady) {
-        ctx.drawImage(boardImage, 0, 0);
-    }
-    if (obstacleReady) {
-        for (ob_key in obstacles) {
-            obst = obstacles[ob_key];
-            ctx.drawImage(obstacleImage,
-                          obst.x * CELL_SIZE, obst.y * CELL_SIZE);
-        }
+    ctx.drawImage(assets.board, 0, 0);
+    for (ob_key in obstacles) {
+        obst = obstacles[ob_key];
+        ctx.drawImage(assets.obstacle,
+                      obst.x * CELL_SIZE, obst.y * CELL_SIZE);
     }
     if (solution) {
         for (i in solution) {
@@ -178,9 +186,33 @@ var reset = function() {
     _gaq.push(['_trackEvent', 'Boop', 'NewGame']);
 }
 
-reset();
+// Artwork.
+var assets = {};
+var assetList = [
+    ["board", "board.png"],
+    ["obstacle", "obstacle.png"]
+];
+var assetCount = 0;
+var assetsReady = function() {
+    return assetCount == assetList.length;
+}
+for (i in assetList) {
+    var asset = assetList[i];
+    var img = new Image();
+    img.onload = function() {
+        assetCount++;
+        if (assetsReady()) {
+            reset();
+        }
+    }
+    assets[asset[0]] = img;
+    img.src = asset[1];
+}
 
 var keyPress = function(e) {
+    if (!assetsReady()) {
+        return;
+    }
     if (e.keyCode == 38) {
         robot = goUp(robot);
         moveCount++;
@@ -272,20 +304,3 @@ addEventListener("click", function(e) {
 
     keyPress(e);
 }, false);
-
-// Artwork.
-var boardReady = false;
-var boardImage = new Image();
-boardImage.onload = function () {
-    boardReady = true;
-    redraw();
-};
-boardImage.src = "board.png";
-
-var obstacleReady = false;
-var obstacleImage = new Image();
-obstacleImage.onload = function () {
-    obstacleReady = true;
-    redraw();
-};
-obstacleImage.src = "obstacle.png";
