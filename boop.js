@@ -1,6 +1,5 @@
 // TODO
 // - adventure / challenge mode
-// - replace background with generated img
 // - size grows over time
 // - handle iOS touchstart / touchend events
 
@@ -36,8 +35,8 @@ var obstacles;
 var start;
 var robot;
 var goal;
-var showPath;
 var moveCount;
+var showPath;
 
 var moveSearch = function(pos, update) {
     var prev;
@@ -168,7 +167,7 @@ _gaq.push(['_trackPageview']);
 })();
 
 var reset = function() {
-    showPath = false;
+    updateHelpValue(false);
     do {
         resetPositions();
         solution = trySolve(robot)
@@ -201,34 +200,7 @@ for (i in assetList) {
     img.src = asset[1];
 }
 
-var keyPress = function(e) {
-    if (!assetsReady()) {
-        return;
-    }
-    if (e.keyCode == 38) {
-        robot = goUp(robot);
-        moveCount++;
-    }
-    if (e.keyCode == 40) {
-        robot = goDown(robot);
-        moveCount++;
-    }
-    if (e.keyCode == 37) {
-        robot = goLeft(robot);
-        moveCount++;
-    }
-    if (e.keyCode == 39) {
-        robot = goRight(robot);
-        moveCount++;
-    }
-    if (e.keyCode == 82) {
-        // 'r'
-        reset();
-    }
-    if (e.keyCode == 83) {
-        // 's'
-        showPath = !showPath;
-    }
+var updateBoard = function() {
     solution = trySolve(robot);
     if (robot.equals(goal)) {
         var optimal = trySolve(start)
@@ -249,6 +221,56 @@ var keyPress = function(e) {
         alert("Oh no! You're stuck.");
         robot = start;
         redraw();
+    }
+}
+
+var toggleHelp = document.getElementById("toggleHelp");
+var updateHelpValue = function(val) {
+    showPath = val;
+    toggleHelp.value = showPath ? "[s] help on" : "[s] help off";
+}
+toggleHelp.onclick = function() {
+    updateHelpValue(!showPath);
+    updateBoard();
+}
+
+var resetButton = document.getElementById("resetButton");
+resetButton.onclick = function() {
+    reset();
+    updateBoard();
+}
+
+var keyPress = function(e) {
+    if (!assetsReady()) {
+        return;
+    }
+    if (e.keyCode == 38) {
+        robot = goUp(robot);
+        moveCount++;
+        updateBoard();
+    }
+    if (e.keyCode == 40) {
+        robot = goDown(robot);
+        moveCount++;
+        updateBoard();
+    }
+    if (e.keyCode == 37) {
+        robot = goLeft(robot);
+        moveCount++;
+        updateBoard();
+    }
+    if (e.keyCode == 39) {
+        robot = goRight(robot);
+        moveCount++;
+        updateBoard();
+    }
+    if (e.keyCode == 82) {
+        // 'r'
+        resetButton.onclick();
+    }
+    if (e.keyCode == 83) {
+        // 's'
+        toggleHelp.onclick();
     }
 }
 
@@ -273,26 +295,22 @@ addEventListener("click", function(e) {
 
     var e = {};
 
-    if (x > canvas.width || y > canvas.height) {
-        e.keyCode = 83;
-    } else {
-        var upperRight = x > y;
-        var upperLeft = (canvas.width - x) > y;
+    var upperRight = x > y;
+    var upperLeft = (canvas.width - x) > y;
 
-        if (upperRight) {
-            if (upperLeft) {
-                e.keyCode = 38;
-            } else {
-                e.keyCode = 39;
-            }
+    if (upperRight) {
+        if (upperLeft) {
+            e.keyCode = 38;
         } else {
-            if (upperLeft) {
-                e.keyCode = 37;
-            } else {
-                e.keyCode = 40;
-            }
+            e.keyCode = 39;
+        }
+    } else {
+        if (upperLeft) {
+            e.keyCode = 37;
+        } else {
+            e.keyCode = 40;
         }
     }
-
+    
     keyPress(e);
 }, false);
