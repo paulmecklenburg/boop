@@ -111,7 +111,7 @@ var addObst = function(x, y) {
     obstacles[pos] = pos;
 }
 
-var resetPositions = function() {
+var newBoardPositions = function() {
     obstacles = {};
     var density = (Math.random() * .15) + .05;
     var numObst = Math.floor(GRID_SIZE * GRID_SIZE * density);
@@ -129,6 +129,7 @@ var resetPositions = function() {
     do {
         goal = new Pos(randInt(GRID_SIZE), randInt(GRID_SIZE));
     } while (goal in obstacles || goal.equals(robot));
+    moveCount = 0;
 }
 
 var drawCell = function(pos, style) {
@@ -166,13 +167,12 @@ _gaq.push(['_trackPageview']);
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 
-var reset = function() {
+var newBoard = function() {
     updateHelpValue(false);
     do {
-        resetPositions();
+        newBoardPositions();
         solution = trySolve(robot)
     } while (!solution || solution.length < 4);
-    moveCount = 0;
     redraw();
     _gaq.push(['_trackEvent', 'Boop', 'NewGame']);
 }
@@ -194,7 +194,7 @@ for (i in assetList) {
     img.onload = function() {
         assetCount++;
         if (assetsReady()) {
-            reset();
+            newBoard();
         }
     }
     assets[asset[0]] = img;
@@ -211,7 +211,7 @@ var updateBoard = function() {
         redraw(optimal);
         _gaq.push(['_trackEvent', 'Boop', 'Win']);
         alert(msg);
-        reset();
+        newBoard();
     } else {
         if (showPath) {
             redraw(solution);
@@ -238,7 +238,14 @@ toggleHelp.onclick = function() {
 
 var resetButton = document.getElementById("resetButton");
 resetButton.onclick = function() {
-    reset();
+    robot = start;
+    moveCount = 0;
+    updateBoard();
+}
+
+var newBoardButton = document.getElementById("newBoard");
+newBoardButton.onclick = function() {
+    newBoard();
     updateBoard();
 }
 
@@ -265,6 +272,10 @@ var keyPress = function(e) {
         robot = goRight(robot);
         moveCount++;
         updateBoard();
+    }
+    if (e.keyCode == 78) {
+        // 'n'
+        newBoardButton.onclick();
     }
     if (e.keyCode == 82) {
         // 'r'
