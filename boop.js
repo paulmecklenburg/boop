@@ -1,7 +1,7 @@
 // TODO
 // - adventure / challenge mode
 // - size grows over time
-// - handle iOS touchstart / touchend events
+// - use check box for help toggle
 
 // Util
 
@@ -278,7 +278,9 @@ var keyPress = function(e) {
 
 addEventListener("keydown", keyPress, false);
 
-addEventListener("click", function(e) {
+var isiOS = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+var clickEvent = isiOS ? 'touchstart' : 'click';
+addEventListener(clickEvent, function(e) {
     var x;
     var y;
     if (e.pageX || e.pageY) {
