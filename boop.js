@@ -280,7 +280,7 @@ addEventListener("keydown", keyPress, false);
 
 var isiOS = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
 var clickEvent = isiOS ? 'touchstart' : 'click';
-addEventListener(clickEvent, function(e) {
+canvas.addEventListener(clickEvent, function(e) {
     var x;
     var y;
     if (e.pageX || e.pageY) {
